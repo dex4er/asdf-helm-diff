@@ -31,7 +31,6 @@ install() {
   curl -sL "$download_url" | tar zx -O diff/bin/diff > "${bin_install_path}/helm-diff"
   chmod +x "${bin_install_path}/helm-diff"
 
-  echo "Adding helm-diff to the list of Helm plugins"
   cat > "${install_path}/plugin.yaml" << END
 name: "diff"
 version: "asdf"
@@ -43,7 +42,7 @@ END
   ln -s . "${install_path}/helm-diff"
 
   if command -v helm >/dev/null && ! helm plugin list | sed 1d | grep -qs '^diff[[:space:]]'; then
-    helm plugin install diff "${install_path}"
+    helm plugin install "${install_path}/helm-diff"
   fi
 }
 
