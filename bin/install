@@ -28,7 +28,8 @@ install() {
 
   echo "Downloading helm-diff from ${download_url}"
   cd "${bin_install_path}"
-  curl -sL "$download_url" | tar zx -O "${bin_install_path}/helm-diff" diff/bin/diff
+  curl -sL "$download_url" | tar zx -O diff/bin/diff > "${bin_install_path}/helm-diff"
+  chmod +x "${bin_install_path}/helm-diff"
 }
 
 install "$ASDF_INSTALL_TYPE" "$ASDF_INSTALL_VERSION" "$ASDF_INSTALL_PATH"
