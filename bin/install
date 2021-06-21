@@ -39,7 +39,7 @@ usage: "Preview helm upgrade changes as a diff"
 description: "Preview helm upgrade changes as a diff"
 useTunnel: true
 command: "helm-diff"
-  END
+END
   ln -s . "${install_path}/helm-diff"
 
   if command -v helm >/dev/null && ! helm plugin list | sed 1d | grep -qs '^diff[[:space:]]'; then
