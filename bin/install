@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+[ -z "${ASDF_INSTALL_TYPE+x}" ] && echo "ASDF_INSTALL_TYPE is required" && exit 1
+[ -z "${ASDF_INSTALL_VERSION+x}" ] && echo "ASDF_INSTALL_VERSION is required" && exit 1
+[ -z "${ASDF_INSTALL_PATH+x}" ] && echo "ASDF_INSTALL_PATH is required" && exit 1
+
+install() {
+  local install_type=$1
+  [ "$install_type" != "version" ] && echo "intall type, $install_type, is not supported" && exit 1
+
+  local version=$2
+  local install_path=$3
+
+  local bin_install_path="$install_path/bin"
+
+  local platform
+  platform=$(uname | tr '[:upper:]' '[:lower:]')
+  case "$platform" in
+    darwin) platform="macos";;
+  esac
+
+  local download_url
+  download_url="https://github.com/databus23/helm-diff/releases/download/v${version}/helm-diff-${platform}.tgz"
+
+  mkdir -p "${bin_install_path}"
+
+  echo "Downloading helm-diff from ${download_url}"
+  cd "${bin_install_path}"
+  curl -sL "$download_url" | tar zx -O "${bin_install_path}/helm-diff" diff/bin/diff
+}
+
+install "$ASDF_INSTALL_TYPE" "$ASDF_INSTALL_VERSION" "$ASDF_INSTALL_PATH"

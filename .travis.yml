@@ -1,0 +1,8 @@
+language: c
+before_script:
+  - git clone https://github.com/asdf-vm/asdf.git
+  - . asdf/asdf.sh
+script:
+  - asdf plugin-add helm-diff ./
+  - asdf list-all helm-diff
+  - asdf plugin-test helm-diff ./ 'helm-diff version'
