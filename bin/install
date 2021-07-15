@@ -27,7 +27,9 @@ install() {
   mkdir -p "${bin_install_path}"
 
   echo "Downloading helm-diff from ${download_url}"
-  cd "${bin_install_path}"
+
+  pushd "${bin_install_path}" > /dev/null
+
   curl -sL "$download_url" | tar zx -O diff/bin/diff > "${bin_install_path}/helm-diff"
   chmod +x "${bin_install_path}/helm-diff"
 
@@ -41,8 +43,10 @@ command: "helm-diff"
 END
   ln -s . "${install_path}/helm-diff"
 
+  popd > /dev/null
+
   if command -v helm >/dev/null && ! helm plugin list | sed 1d | grep -qs '^diff[[:space:]]'; then
-    helm plugin install "${install_path}/helm-diff"
+    helm plugin install "${install_path}/helm-diff" || true
   fi
 }
 
