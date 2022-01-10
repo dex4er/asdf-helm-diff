@@ -21,8 +21,12 @@ install() {
     darwin) platform="macos";;
   esac
 
+  local arch
+  [ "x86_64" = "$(uname -m)" ] && arch="amd64" || arch="386"
+  [ "aarch64" = "$(uname -m)" ] && arch="arm64"
+
   local download_url
-  download_url="https://github.com/databus23/helm-diff/releases/download/v${version}/helm-diff-${platform}.tgz"
+  download_url="https://github.com/databus23/helm-diff/releases/download/v${version}/helm-diff-${platform}-${arch}.tgz"
 
   mkdir -p "${bin_install_path}"
 
