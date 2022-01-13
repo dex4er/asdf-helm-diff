@@ -21,8 +21,18 @@ install() {
     darwin) platform="macos";;
   esac
 
+  local arch
+  arch=$(uname -m)
+  case "$arch" in
+    x86_64) arch="amd64";;
+    aarch64) arch="arm64";;
+  esac
+
   local download_url
-  download_url="https://github.com/databus23/helm-diff/releases/download/v${version}/helm-diff-${platform}.tgz"
+  download_url="https://github.com/databus23/helm-diff/releases/download/v${version}/helm-diff-${platform}-${arch}.tgz"
+  case "$version" in
+    3.[01].*|[012].*) download_url="https://github.com/databus23/helm-diff/releases/download/v${version}/helm-diff-${platform}.tgz";;
+  esac
 
   mkdir -p "${bin_install_path}"
 
@@ -31,6 +41,7 @@ install() {
   pushd "${bin_install_path}" > /dev/null
 
   curl -sL "$download_url" | tar zx -O diff/bin/diff > "${bin_install_path}/helm-diff"
+
   chmod +x "${bin_install_path}/helm-diff"
 
   cat > "${install_path}/plugin.yaml" << END
@@ -48,6 +59,9 @@ END
   if command -v helm >/dev/null && ! helm plugin list | sed 1d | grep -qs '^diff[[:space:]]'; then
     helm plugin install "${install_path}/helm-diff" || true
   fi
+
+  echo "Cannot download plugin"
+
 }
 
 install "$ASDF_INSTALL_TYPE" "$ASDF_INSTALL_VERSION" "$ASDF_INSTALL_PATH"

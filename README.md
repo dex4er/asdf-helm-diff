@@ -6,7 +6,7 @@
 
 ## Install
 
-```
+```shell
 asdf plugin-add helm-diff https://github.com/dex4er/asdf-helm-diff.git
 ```
 
