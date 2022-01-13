@@ -59,9 +59,6 @@ END
   if command -v helm >/dev/null && ! helm plugin list | sed 1d | grep -qs '^diff[[:space:]]'; then
     helm plugin install "${install_path}/helm-diff" || true
   fi
-
-  echo "Cannot download plugin"
-
 }
 
 install "$ASDF_INSTALL_TYPE" "$ASDF_INSTALL_VERSION" "$ASDF_INSTALL_PATH"
