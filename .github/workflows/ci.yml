@@ -14,7 +14,7 @@ on:
     - cron: 0 12 * * 1
 
 jobs:
-  plugin_test:
+  test:
     strategy:
       fail-fast: false
       matrix:
@@ -29,3 +29,13 @@ jobs:
         uses: asdf-vm/actions/plugin-test@v1
         with:
           command: helm diff version
+
+  trunk:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Trunk Check
+        uses: trunk-io/trunk-action@v1.0.0
