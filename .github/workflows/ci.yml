@@ -33,6 +33,12 @@ jobs:
       - name: Preinstall
         run: ${{ matrix.preinstall }}
 
+      - name: asdf install
+        uses: asdf-vm/actions/install@v1
+        with:
+          tool_versions: |
+            helm latest
+
       - name: Test plugin
         uses: asdf-vm/actions/plugin-test@v1
         with:
