@@ -1,0 +1,23 @@
+name: Trunk
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths-ignore:
+      - LICENSE
+  push:
+    paths-ignore:
+      - LICENSE
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Trunk Check
+        uses: trunk-io/trunk-action@v1
+        with:
+          check-mode: all

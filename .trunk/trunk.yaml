@@ -1,11 +1,16 @@
 version: 0.1
 cli:
-  version: 0.14.1-beta
+  version: 1.0.1
 lint:
   enabled:
-    - actionlint@1.6.9
-    - gitleaks@8.3.0
-    - markdownlint@0.31.1
-    - prettier@2.5.1
+    - git-diff-check
+    - actionlint@1.6.21
+    - gitleaks@8.15.0
+    - markdownlint@0.32.2
+    - prettier@2.7.1
     - shellcheck@0.8.0
-    - shfmt@3.4.0
+    - shfmt@3.5.0
+runtimes:
+  enabled:
+    - go@1.18.3
+    - node@16.14.2
