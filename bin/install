@@ -30,6 +30,9 @@ function install() {
 
 	local platform
 	platform=$(uname -s | tr '[:upper:]' '[:lower:]')
+	case "${platform}" in
+	darwin) platform=macos ;;
+	esac
 
 	local arch
 	arch=$(uname -m)
