@@ -1,7 +1,9 @@
 name: CI
 
+permissions: {}
+
 on:
-  workflow_dispatch:
+  workflow_dispatch: {}
   pull_request:
     paths-ignore:
       - "**.md"
@@ -18,11 +20,11 @@ jobs:
       matrix:
         include:
           - container: alpine:latest
-            preinstall: apk add bash coreutils curl git
+            preinstall: apk add bash coreutils curl git jq
           - container: centos:latest
-            preinstall: dnf -y --disablerepo '*' --enablerepo=extras swap centos-linux-repos centos-stream-repos && dnf -y install git
+            preinstall: dnf -y --disablerepo '*' --enablerepo=extras swap centos-linux-repos centos-stream-repos && dnf -y install git jq
           - container: ubuntu:latest
-            preinstall: apt-get -y update && apt-get -y install curl git
+            preinstall: apt-get -y update && apt-get -y install curl git jq
 
     runs-on: ubuntu-latest
 
@@ -42,6 +44,9 @@ jobs:
     runs-on: macos-latest
 
     steps:
+      - name: Preinstall
+        run: brew install jq
+
       - name: Test plugin
         uses: asdf-vm/actions/plugin-test@v1
         with:
