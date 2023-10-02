@@ -1,46 +1,70 @@
 #!/usr/bin/env bash
 
 set -euo pipefail
+shopt -s inherit_errexit 2>/dev/null || true
 
 [[ -z ${ASDF_INSTALL_TYPE+x} ]] && echo "ASDF_INSTALL_TYPE is required" && exit 1
 [[ -z ${ASDF_INSTALL_VERSION+x} ]] && echo "ASDF_INSTALL_VERSION is required" && exit 1
 [[ -z ${ASDF_INSTALL_PATH+x} ]] && echo "ASDF_INSTALL_PATH is required" && exit 1
 
-install() {
-	local install_type=$1
-	[[ ${install_type} != "version" ]] && echo "intall type, ${install_type}, is not supported" && exit 1
+function gh_curl() {
+	if [[ -n ${GITHUB_TOKEN-} ]]; then
+		curl -fLsS -H "Authorization: token ${GITHUB_TOKEN}" "$@"
+	elif [[ -n ${GITHUB_API_TOKEN-} ]]; then
+		curl -fLsS -H "Authorization: token ${GITHUB_API_TOKEN}" "$@"
+	else
+		curl -fLsS "$@"
+	fi
+}
 
+function install() {
+	# set -x
+	local install_type=$1
+	[[ ${install_type} != "version" ]] && echo "install type, ${install_type}, is not supported" && exit 1
+
+	local prefix="v"
 	local version=$2
 	local install_path=$3
 
 	local bin_install_path="${install_path}/bin"
 
 	local platform
-	platform=$(uname | tr '[:upper:]' '[:lower:]')
-	case "${platform}" in
-	darwin) platform="macos" ;;
-	esac
+	platform=$(uname -s | tr '[:upper:]' '[:lower:]')
 
 	local arch
 	arch=$(uname -m)
 	case "${arch}" in
-	x86_64) arch="amd64" ;;
-	aarch64) arch="arm64" ;;
+	aarch64) arch=arm64 ;;
+	x86_64) arch=amd64 ;;
 	esac
 
 	local download_url
-	download_url="https://github.com/databus23/helm-diff/releases/download/v${version}/helm-diff-${platform}-${arch}.tgz"
+
+	local repo="databus23/helm-diff"
+
+	local download_filename
 	case "${version}" in
-	3.[01].* | [012].*) download_url="https://github.com/databus23/helm-diff/releases/download/v${version}/helm-diff-${platform}.tgz" ;;
+	3.[01].* | [012].*) download_filename="helm-diff-${platform}.tgz" ;;
+	*) download_filename="helm-diff-${platform}-${arch}.tgz" ;;
 	esac
+
+	if [[ -n ${GITHUB_TOKEN-} ]] || [[ -n ${GITHUB_API_TOKEN-} ]]; then
+		local asset_url
+		asset_url="https://api.github.com/repos/${repo}/releases/tags/${prefix}${version}"
+		download_url=$(gh_curl -H "Accept: application/vnd.github.v3.raw" "${asset_url}" | jq -r ".assets | map(select(.name == \"${download_filename}\"))[0].url")
+		if [[ ${download_url} == null ]]; then
+			echo "Asset ${download_filename} not found in a release ${prefix}${version}."
+			exit 1
+		fi
+	else
+		download_url="https://github.com/${repo}/releases/download/${prefix}${version}/${download_filename}"
+	fi
+
+	echo "Downloading ${download_filename} from release ${prefix}${version} from ${download_url}"
 
 	mkdir -p "${bin_install_path}"
 
-	echo "Downloading helm-diff from ${download_url}"
-
-	pushd "${bin_install_path}" >/dev/null
-
-	curl -sL "${download_url}" | tar zx -O diff/bin/diff >"${bin_install_path}/helm-diff"
+	gh_curl -H "Accept: application/octet-stream" "${download_url}" | tar zx -O diff/bin/diff >"${bin_install_path}/helm-diff"
 
 	chmod +x "${bin_install_path}/helm-diff"
 
@@ -53,8 +77,6 @@ useTunnel: true
 command: "helm-diff"
 END
 	ln -s . "${install_path}/helm-diff"
-
-	popd >/dev/null
 
 	if command -v helm >/dev/null && ! helm plugin list | sed 1d | grep -qs '^diff[[:space:]]'; then
 		helm plugin install "${install_path}/helm-diff" || true
