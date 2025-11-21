@@ -81,7 +81,11 @@ command: "helm-diff"
 END
 	ln -s . "${install_path}/helm-diff"
 
-	if command -v helm >/dev/null && ! helm plugin list | sed 1d | grep -qs '^diff[[:space:]]'; then
+  # Check if helm is installed and helm-diff is installed, then uninstall helm-diff to recreate symlink to correct version
+  if command -v helm >/dev/null && helm plugin list | sed 1d | grep -qs '^diff[[:space:]]'; then
+      helm plugin uninstall diff || true
+      helm plugin install "${install_path}/helm-diff" || true
+  elif command -v helm >/dev/null && ! helm plugin list | sed 1d | grep -qs '^diff[[:space:]]'; then
 		helm plugin install "${install_path}/helm-diff" || true
 	fi
 }
