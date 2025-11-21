@@ -73,7 +73,7 @@ function install() {
 
 	cat >"${install_path}/plugin.yaml" <<END
 name: "diff"
-version: "asdf"
+version: "$version"
 usage: "Preview helm upgrade changes as a diff"
 description: "Preview helm upgrade changes as a diff"
 useTunnel: true
